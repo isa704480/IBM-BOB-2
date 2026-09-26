@@ -1,0 +1,22 @@
+{
+  "dependency": "zod",
+  "from": "3",
+  "to": "4",
+  "source": "Zod v4 migration guide (FIXTURE — full versiyada Bob document understanding orqali chiqaradi)",
+  "rules": [
+    { "id": "zod-email", "kind": "zodEmail", "oldApi": "z.string().email()", "newApi": "z.email()", "severity": "deprecation" },
+    { "id": "zod-url", "kind": "zodUrl", "oldApi": "z.string().url()", "newApi": "z.url()", "severity": "deprecation" },
+    { "id": "zod-uuid", "kind": "zodUuid", "oldApi": "z.string().uuid()", "newApi": "z.uuid()", "severity": "deprecation" },
+    { "id": "zod-datetime", "kind": "zodDatetime", "oldApi": "z.string().datetime()", "newApi": "z.iso.datetime()", "severity": "deprecation" },
+    {
+      "id": "zod-strict-object",
+      "kind": "detectOnly",
+      "detect": "\\.strict\\(\\)",
+      "oldApi": "z.object({...}).strict()",
+      "newApi": "z.strictObject({...})",
+      "severity": "breaking",
+      "needsBob": true,
+      "note": "v4: .strict() -> z.strictObject(...). Obyektni qayta o'rash kerak — semantik, Bob subagenti bajaradi."
+    }
+  ]
+}

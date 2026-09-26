@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PatchPilot</title>
+<meta name="description" content="Dependency upgrades that don't break your build. PatchPilot fixes breaking changes across your repo, verifies them, and opens a merge-ready PR.">
+<link rel="stylesheet" href="/assets/apple.css">
+</head>
+<body>
+  <nav class="nav" id="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="/">
+        <span class="logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="4"/></svg>
+        </span>
+        PatchPilot
+      </a>
+      <div class="nav-links">
+        <a href="#how" class="hide-sm">How it works</a>
+        <a href="#features" class="hide-sm">Features</a>
+        <a href="/app" class="hide-sm">Console</a>
+        <a href="/login">Sign in</a>
+        <a href="/register" class="btn btn-primary" style="height:36px;padding:0 16px;font-size:14px;">Get started</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero container">
+    <span class="eyebrow">Built with IBM Bob 2.0</span>
+    <h1 class="h1">Dependency upgrades<br><span class="muted">that don't break your build.</span></h1>
+    <p class="lede">Dependabot bumps a version and walks away. PatchPilot fixes the breaking changes across your whole repo, verifies them, and opens a merge-ready pull request.</p>
+    <div class="hero-actions">
+      <a href="/register" class="btn btn-primary btn-lg">Get started free</a>
+      <a href="/app" class="btn btn-lg">See it run</a>
+    </div>
+
+    <div class="mock" aria-label="Before and after a PatchPilot run">
+      <div class="mock-bar">
+        <span class="d" style="background:#ff5f57"></span><span class="d" style="background:#febc2e"></span><span class="d" style="background:#28c840"></span>
+        <span class="t">patchpilot run · express 4 → 5</span>
+      </div>
+      <div class="mock-body">
+        <div class="mock-lane">
+          <div class="lab">Before</div>
+          <div class="bar" style="height:8px;background:#ff375f"></div>
+          <div class="num" style="color:#ff375f">0</div>
+          <div class="lab" style="text-transform:none;letter-spacing:0;color:var(--text-3)">tests passing</div>
+        </div>
+        <div class="mock-arrow" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+        <div class="mock-lane">
+          <div class="lab">After</div>
+          <div class="bar" style="height:70px;background:var(--live)"></div>
+          <div class="num" style="color:#0a7d47">11</div>
+          <div class="lab" style="text-transform:none;letter-spacing:0;color:var(--text-3)">tests passing</div>
+        </div>
+        <div style="flex:1;min-width:130px;text-align:center;">
+          <span class="pill-ok"><span class="dot"></span>Merge-ready</span>
+          <div style="margin-top:8px;font-size:12.5px;color:var(--text-3)" class="tnum">9 fixes · 3 modules · ~6s</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Stats -->
+    <section class="section read">
+      <div class="panel stats">
+        <div class="s"><div class="n accent tnum">95%</div><div class="l">less time per upgrade</div></div>
+        <div class="s"><div class="n tnum">0 → 11</div><div class="l">tests red to green</div></div>
+        <div class="s"><div class="n tnum">1 PR</div><div class="l">reviewed, not written</div></div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="section read" id="how">
+      <div class="section-head">
+        <h2 class="h2">From broken bump to merge-ready</h2>
+        <p class="sub">One command runs the whole pipeline — no babysitting.</p>
+      </div>
+      <div class="panel rows">
+        <div class="row">
+          <span class="idx">01</span>
+          <div><div class="rt">Scan the whole repo</div><div class="rd">Full-repository context maps every place the dependency is used — not just the file you have open.</div></div>
+        </div>
+        <div class="row">
+          <span class="idx">02</span>
+          <div><div class="rt">Fix in parallel</div><div class="rd">A subagent per module applies the migration and self-heals against its own tests, all at once.</div></div>
+        </div>
+        <div class="row">
+          <span class="idx">03</span>
+          <div><div class="rt">Verify the build</div><div class="rd">Tests or type-checks gate every change. What can't be fixed safely is flagged, never faked green.</div></div>
+        </div>
+        <div class="row">
+          <span class="idx">04</span>
+          <div><div class="rt">Open the PR</div><div class="rd">A merge-ready pull request lands with migration notes and a before/after report attached.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="section read" id="features">
+      <div class="section-head">
+        <h2 class="h2">Not another linter</h2>
+        <p class="sub">Detection is a solved problem. PatchPilot does the remediation.</p>
+      </div>
+      <div class="panel rows">
+        <div class="row">
+          <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg></span>
+          <div><div class="rt">Agentic remediation</div><div class="rd">It changes the code to match the new API — it doesn't just tell you what's wrong.</div></div>
+        </div>
+        <div class="row">
+          <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><rect x="3" y="15" width="7" height="5" rx="1.5"/><rect x="14" y="15" width="7" height="5" rx="1.5"/></svg></span>
+          <div><div class="rt">Parallel subagents</div><div class="rd">Each module is isolated and fixed concurrently, so a monorepo upgrade takes seconds, not an afternoon.</div></div>
+        </div>
+        <div class="row">
+          <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+          <div><div class="rt">Verified &amp; merge-ready</div><div class="rd">Every run ends on a green build or an honest flag. No PRs that break the moment you merge them.</div></div>
+        </div>
+        <div class="row">
+          <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span>
+          <div><div class="rt">Works on real repos</div><div class="rd">Point it at a sample project or your production monorepo — config picks the module layout and verify command.</div></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- CTA -->
+  <section class="section container read">
+    <div class="cta">
+      <span class="orb" style="width:280px;height:280px;background:#8ab6ff;top:-90px;left:-60px;"></span>
+      <span class="orb" style="width:240px;height:240px;background:#b39cff;bottom:-90px;right:-40px;"></span>
+      <h2>Stop babysitting dependency PRs.</h2>
+      <p>Let PatchPilot do the upgrade, fix the fallout, and prove it still works.</p>
+      <div class="cta-actions">
+        <a href="/register" class="btn btn-white btn-lg">Get started free</a>
+        <a href="/app" class="btn btn-glass btn-lg">Watch a live run</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>© 2026 PatchPilot · Built with IBM Bob 2.0</span>
+      <span style="display:flex;gap:16px;">
+        <a href="/login">Sign in</a>
+        <a href="/register">Get started</a>
+        <a href="/app">Console</a>
+      </span>
+    </div>
+  </footer>
+
+  <script>
+    const nav = document.getElementById('nav');
+    addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 8), { passive: true });
+  </script>
+</body>
+</html>

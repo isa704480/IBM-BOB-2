@@ -1,0 +1,48 @@
+{
+  "dependency": "express",
+  "from": "4",
+  "to": "5",
+  "source": "Express 5 migration guide + path-to-regexp v8",
+  "rules": [
+    {
+      "id": "app-del-to-delete",
+      "oldApi": "app.del(",
+      "newApi": "app.delete(",
+      "transformation": "rename-method",
+      "severity": "breaking",
+      "note": "app.del() olib tashlandi; app.delete() ishlatilsin"
+    },
+    {
+      "id": "req-param-removed",
+      "oldApi": "req.param('<name>')",
+      "newApi": "req.params.<name> | req.query.<name> | req.body.<name>",
+      "transformation": "replace-accessor",
+      "severity": "breaking",
+      "note": "req.param() olib tashlandi; aniq manbadan (params/query/body) o'qilsin"
+    },
+    {
+      "id": "res-redirect-back",
+      "oldApi": "res.redirect('back')",
+      "newApi": "res.redirect(req.get('Referrer') || '/')",
+      "transformation": "replace-expression",
+      "severity": "breaking",
+      "note": "'back' magic qiymati olib tashlandi"
+    },
+    {
+      "id": "optional-param",
+      "oldApi": "'/<path>/:<name>?'",
+      "newApi": "'/<path>{/:<name>}'",
+      "transformation": "route-pattern",
+      "severity": "breaking",
+      "note": "Ixtiyoriy param ':x?' sintaksisi endi '{/:x}' ko'rinishida"
+    },
+    {
+      "id": "wildcard-route",
+      "oldApi": "'*'",
+      "newApi": "'/*splat'",
+      "transformation": "route-pattern",
+      "severity": "breaking",
+      "note": "Nomsiz '*' wildcard endi nomlangan bo'lishi shart"
+    }
+  ]
+}

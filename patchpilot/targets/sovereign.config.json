@@ -1,0 +1,13 @@
+{
+  "label": "Sovereign (Next.js 16 + TS) — zod codemod + typecheck gate",
+  "dependency": "zod",
+  "from": "3",
+  "to": "4",
+  "moduleStrategy": "src-subdirs",
+  "sourceExts": [".ts", ".tsx"],
+  "verify": { "mode": "repo", "cmd": "npm run typecheck" },
+  "upgrade": { "enabled": false },
+  "linkDirs": ["node_modules", ".next"],
+  "rulesFile": "rules/zod-3-to-4.json",
+  "manualEstimateMinutes": 90
+}

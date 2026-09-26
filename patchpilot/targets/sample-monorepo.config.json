@@ -1,0 +1,12 @@
+{
+  "label": "sample-monorepo (express 4 → 5)",
+  "dependency": "express",
+  "from": "4",
+  "to": "5",
+  "moduleStrategy": "services",
+  "sourceExts": [".js"],
+  "verify": { "mode": "per-module", "cmd": "npm test -w {module}" },
+  "upgrade": { "enabled": true, "install": true },
+  "rulesFile": "rules/express-4-to-5.json",
+  "manualEstimateMinutes": 120
+}

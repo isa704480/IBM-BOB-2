@@ -1,0 +1,19 @@
+{
+  "name": "sample-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PatchPilot demo target — Express v4 monorepo with intentional v5 breaking APIs",
+  "workspaces": [
+    "services/*"
+  ],
+  "scripts": {
+    "test": "npm test --workspaces --if-present",
+    "test:api": "npm test -w services/api",
+    "test:auth": "npm test -w services/auth",
+    "test:billing": "npm test -w services/billing",
+    "start:api": "npm start -w services/api",
+    "start:auth": "npm start -w services/auth",
+    "start:billing": "npm start -w services/billing"
+  },
+  "license": "MIT"
+}

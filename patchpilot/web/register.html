@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Create account · PatchPilot</title>
+<link rel="stylesheet" href="/assets/apple.css">
+</head>
+<body>
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="/">
+        <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="4"/></svg></span>
+        PatchPilot
+      </a>
+      <div class="nav-links">
+        <a href="/login">Sign in</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="auth">
+    <form class="auth-card" id="form" novalidate>
+      <div class="auth-brand">
+        <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="4"/></svg></span>
+        PatchPilot
+      </div>
+      <h1>Create your account</h1>
+      <p class="sub">Start shipping upgrades that don't break the build.</p>
+
+      <div class="field">
+        <label for="name">Full name</label>
+        <input id="name" name="name" type="text" autocomplete="name" placeholder="Ada Lovelace" required>
+        <span class="err" id="name-err"></span>
+      </div>
+
+      <div class="field">
+        <label for="email">Work email</label>
+        <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@company.com" required>
+        <span class="err" id="email-err"></span>
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="pw-wrap">
+          <input id="password" name="password" type="password" autocomplete="new-password" placeholder="At least 8 characters" required minlength="8">
+          <button type="button" class="toggle" data-target="password" aria-label="Show password">Show</button>
+        </div>
+        <span class="err" id="password-err"></span>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:22px;">Create account</button>
+
+      <div class="auth-foot">Already have an account? <a href="/login">Sign in</a></div>
+      <p class="demo-note">Prototype UI — this form validates locally and opens the console. No credentials are stored or sent.</p>
+    </form>
+  </main>
+
+  <script src="/assets/auth.js"></script>
+</body>
+</html>

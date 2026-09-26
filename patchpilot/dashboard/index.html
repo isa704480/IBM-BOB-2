@@ -1,0 +1,430 @@
+<title>PatchPilot Console</title>
+<style>
+  :root {
+    --bg: #f5f7fa;
+    --surface: #ffffff;
+    --surface-2: #eef1f6;
+    --border: #dde3ec;
+    --ink: #141c27;
+    --ink-2: #45566b;
+    --muted: #8592a4;
+    --accent: #2563eb;
+    --accent-soft: rgba(37, 99, 235, 0.1);
+    --good: #12855a;
+    --good-soft: rgba(18, 133, 90, 0.12);
+    --warn: #b26b08;
+    --warn-soft: rgba(178, 107, 8, 0.13);
+    --bad: #cf3b34;
+    --bad-soft: rgba(207, 59, 52, 0.12);
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, Segoe UI, sans-serif;
+    --shadow: 0 1px 2px rgba(20, 28, 39, 0.05), 0 4px 16px rgba(20, 28, 39, 0.04);
+    --radius: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #0c1017;
+      --surface: #141a23;
+      --surface-2: #1b232e;
+      --border: #28323f;
+      --ink: #e7edf4;
+      --ink-2: #aab7c6;
+      --muted: #7b8896;
+      --accent: #5891ff;
+      --accent-soft: rgba(88, 145, 255, 0.15);
+      --good: #45c68d;
+      --good-soft: rgba(69, 198, 141, 0.14);
+      --warn: #e3a648;
+      --warn-soft: rgba(227, 166, 72, 0.15);
+      --bad: #f3675e;
+      --bad-soft: rgba(243, 103, 94, 0.14);
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.25);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0c1017;
+    --surface: #141a23;
+    --surface-2: #1b232e;
+    --border: #28323f;
+    --ink: #e7edf4;
+    --ink-2: #aab7c6;
+    --muted: #7b8896;
+    --accent: #5891ff;
+    --accent-soft: rgba(88, 145, 255, 0.15);
+    --good: #45c68d;
+    --good-soft: rgba(69, 198, 141, 0.14);
+    --warn: #e3a648;
+    --warn-soft: rgba(227, 166, 72, 0.15);
+    --bad: #f3675e;
+    --bad-soft: rgba(243, 103, 94, 0.14);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.25);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 56px; }
+
+  /* Header */
+  .top { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 6px; }
+  .mark {
+    width: 40px; height: 40px; border-radius: 10px; flex: none;
+    background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 60%, #7b5cff));
+    display: grid; place-items: center; color: #fff; box-shadow: var(--shadow);
+  }
+  .mark svg { width: 22px; height: 22px; }
+  .brand h1 { font-size: 21px; font-weight: 600; margin: 0; letter-spacing: -0.02em; }
+  .brand p { margin: 0; font-size: 12.5px; color: var(--muted); }
+  .top-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+  .seg { display: inline-flex; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 3px; }
+  .seg button {
+    font-family: var(--sans); font-size: 13px; font-weight: 500; color: var(--ink-2);
+    border: 0; background: transparent; padding: 6px 13px; border-radius: 7px; cursor: pointer;
+  }
+  .seg button[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+  .btn {
+    font-family: var(--sans); font-size: 13px; font-weight: 500; color: var(--ink-2);
+    border: 1px solid var(--border); background: var(--surface); padding: 7px 13px; border-radius: 9px; cursor: pointer;
+  }
+  .btn:hover { color: var(--ink); border-color: var(--muted); }
+
+  /* Run header card */
+  .runhead {
+    margin-top: 20px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px 20px;
+    display: flex; gap: 16px 24px; align-items: center; flex-wrap: wrap;
+  }
+  .runhead .rh-title { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+  .runhead .rh-sub { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .runhead .rh-right { margin-left: auto; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600;
+    padding: 5px 11px; border-radius: 999px; border: 1px solid transparent;
+  }
+  .badge.good { color: var(--good); background: var(--good-soft); border-color: color-mix(in srgb, var(--good) 30%, transparent); }
+  .badge.warn { color: var(--warn); background: var(--warn-soft); border-color: color-mix(in srgb, var(--warn) 30%, transparent); }
+  .badge.bad { color: var(--bad); background: var(--bad-soft); border-color: color-mix(in srgb, var(--bad) 30%, transparent); }
+  .badge .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .pill { font-family: var(--mono); font-size: 11.5px; color: var(--ink-2); background: var(--surface-2); border: 1px solid var(--border); padding: 4px 9px; border-radius: 7px; }
+
+  /* Stat tiles */
+  .tiles { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-top: 16px; }
+  .tile { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 15px; box-shadow: var(--shadow); }
+  .tile .k { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; }
+  .tile .v { font-family: var(--mono); font-size: 27px; font-weight: 600; letter-spacing: -0.02em; margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .tile .s { font-size: 11.5px; color: var(--ink-2); margin-top: 2px; }
+  .tile.accent .v { color: var(--accent); }
+  .tile.good .v { color: var(--good); }
+  .tile.warn .v { color: var(--warn); }
+
+  /* Grid body */
+  .cols { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 16px; margin-top: 16px; align-items: start; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px 20px; }
+  .card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-2); margin: 0 0 14px; font-weight: 600; }
+  .stack { display: flex; flex-direction: column; gap: 16px; }
+
+  /* Before/After bars */
+  .ba { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .ba .lane { background: var(--surface-2); border-radius: 10px; padding: 14px; text-align: center; }
+  .ba .lane .lab { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; }
+  .bar-track { height: 96px; display: flex; align-items: flex-end; justify-content: center; margin: 10px 0 8px; }
+  .bar { width: 46px; border-radius: 5px 5px 0 0; min-height: 4px; transition: height 0.5s ease; }
+  .bar.bad { background: var(--bad); }
+  .bar.good { background: var(--good); }
+  .ba .num { font-family: var(--mono); font-size: 20px; font-weight: 600; }
+  .ba .cap { font-size: 11.5px; color: var(--ink-2); }
+  .arrow { display:flex; align-items:center; justify-content:center; color: var(--muted); }
+
+  .verify-chips { display: flex; gap: 12px; flex-wrap: wrap; }
+  .vchip { flex: 1; min-width: 140px; background: var(--surface-2); border-radius: 10px; padding: 13px 14px; }
+  .vchip .lab { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; }
+  .vchip .st { font-family: var(--mono); font-size: 15px; font-weight: 600; margin-top: 6px; display: flex; align-items: center; gap: 7px; }
+  .note { font-size: 12.5px; color: var(--ink-2); margin-top: 14px; padding: 11px 13px; background: var(--surface-2); border-radius: 9px; border-left: 3px solid var(--accent); }
+
+  /* Subagents */
+  .agents { display: flex; flex-direction: column; gap: 10px; }
+  .agent { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
+  .agent .name { font-family: var(--mono); font-size: 13px; font-weight: 600; }
+  .agent .meta { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .agent .right { margin-left: auto; text-align: right; }
+  .agent .right .n { font-family: var(--mono); font-size: 13px; color: var(--ink); }
+  .st-ico { width: 26px; height: 26px; border-radius: 7px; flex: none; display: grid; place-items: center; font-size: 14px; }
+  .st-ico.good { background: var(--good-soft); color: var(--good); }
+  .st-ico.warn { background: var(--warn-soft); color: var(--warn); }
+
+  /* dep usage + rules */
+  .depgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .depgrid .d { background: var(--surface-2); border-radius: 10px; padding: 13px; text-align: center; }
+  .depgrid .d .n { font-family: var(--mono); font-size: 22px; font-weight: 600; }
+  .depgrid .d .l { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  table.rules { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  table.rules th { text-align: left; color: var(--muted); font-weight: 600; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  table.rules td { padding: 8px; border-bottom: 1px solid var(--border); }
+  table.rules td.code { font-family: var(--mono); font-size: 11.5px; color: var(--ink-2); }
+  table.rules tr:last-child td { border-bottom: 0; }
+  .tag { font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: 6px; }
+  .tag.auto { color: var(--good); background: var(--good-soft); }
+  .tag.bob { color: var(--warn); background: var(--warn-soft); }
+
+  footer { margin-top: 22px; font-size: 12px; color: var(--muted); text-align: center; }
+  footer code { font-family: var(--mono); color: var(--ink-2); }
+  input[type="file"] { display: none; }
+
+  @media (max-width: 860px) {
+    .tiles { grid-template-columns: repeat(3, 1fr); }
+    .cols { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    .tiles { grid-template-columns: repeat(2, 1fr); }
+    .depgrid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="4"/>
+      </svg>
+    </div>
+    <div class="brand">
+      <h1>PatchPilot Console</h1>
+      <p>Agentic dependency-upgrade autopilot &middot; IBM Bob 2.0</p>
+    </div>
+    <div class="top-actions">
+      <div class="seg" role="tablist" id="runsel">
+        <button role="tab" data-run="sample" aria-selected="true">Sample repo</button>
+        <button role="tab" data-run="sovereign" aria-selected="false">Sovereign</button>
+      </div>
+      <button class="btn" id="loadBtn" title="Load a .patchpilot/report.json">Load report.json</button>
+      <input type="file" id="fileInput" accept="application/json,.json">
+    </div>
+  </header>
+
+  <section class="runhead">
+    <div>
+      <div class="rh-title" id="rhTitle">—</div>
+      <div class="rh-sub" id="rhSub">—</div>
+    </div>
+    <div class="rh-right" id="rhRight"></div>
+  </section>
+
+  <section class="tiles" id="tiles"></section>
+
+  <section class="cols">
+    <div class="stack">
+      <div class="card">
+        <h2 id="baTitle">Verify gate — before &rarr; after</h2>
+        <div id="baBody"></div>
+      </div>
+      <div class="card">
+        <h2>Subagents (parallel)</h2>
+        <div class="agents" id="agents"></div>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="card">
+        <h2 id="depTitle">Dependency footprint</h2>
+        <div class="depgrid" id="depgrid"></div>
+        <div class="note" id="depNote"></div>
+      </div>
+      <div class="card">
+        <h2>Migration breakdown</h2>
+        <table class="rules"><thead><tr><th>Change</th><th>Where</th><th>Handled by</th></tr></thead>
+          <tbody id="rulesBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Deterministic layer handles mechanical fixes; <code>needs_bob</code> items route to IBM Bob 2.0 subagents for semantic changes.
+  </footer>
+</div>
+
+<script>
+  const RUNS = {
+    sample: {
+      label: "sample-monorepo",
+      dep: "express", from: "4", to: "5",
+      strategy: "services", verifyMode: "per-module (npm test)",
+      duration: 4, manual: 120, timeSaved: 97,
+      mergeReady: true,
+      autoFixed: 9, filesChanged: 3, modulesFixed: 3, needsBob: 0, modulesTotal: 3,
+      depUsage: { files: 3, modules: 3, imports: 3 },
+      tests: { before: 0, after: 11, total: 11 },
+      agents: [
+        { name: "services/api", status: "good", fixes: 4, tests: "5/5" },
+        { name: "services/auth", status: "good", fixes: 3, tests: "3/3" },
+        { name: "services/billing", status: "good", fixes: 2, tests: "3/3" },
+      ],
+      rules: [
+        { change: "app.del( → app.delete(", where: "api", by: "auto" },
+        { change: "req.param('x') → req.params.x", where: "api, billing", by: "auto" },
+        { change: "res.redirect('back') → Referrer", where: "auth", by: "auto" },
+        { change: "'/:id?' → '{/:id}'", where: "auth", by: "auto" },
+        { change: "'*' → '/*splat'", where: "billing", by: "auto" },
+      ],
+    },
+    sovereign: {
+      label: "Sovereign — Next.js 16 + TypeScript",
+      dep: "zod", from: "3", to: "4",
+      strategy: "src-subdirs", verifyMode: "repo (tsc --noEmit)",
+      duration: 16, manual: 90, timeSaved: 99,
+      mergeReady: true,
+      autoFixed: 0, filesChanged: 0, modulesFixed: 0, needsBob: 3, modulesTotal: 1,
+      depUsage: { files: 17, modules: 2, imports: 17 },
+      verify: { before: true, after: true, label: "typecheck" },
+      agents: [
+        { name: "src/app", status: "warn", fixes: 0, flags: 3, tests: null },
+      ],
+      rules: [
+        { change: ".strict() → z.strictObject({…})", where: "src/app/api/cli", by: "bob" },
+        { change: "z.string().email() → z.email()", where: "not present", by: "auto" },
+        { change: "z.string().url() → z.url()", where: "not present", by: "auto" },
+      ],
+    },
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+
+  function render(run) {
+    $("rhTitle").textContent = run.label;
+    $("rhSub").textContent = `${run.dep} ${run.from} → ${run.to}  ·  ${run.strategy}  ·  verify: ${run.verifyMode}`;
+
+    $("rhRight").innerHTML =
+      (run.mergeReady
+        ? `<span class="badge good"><span class="dot"></span>Merge-ready</span>`
+        : `<span class="badge bad"><span class="dot"></span>Blocked</span>`) +
+      `<span class="pill">${run.duration}s</span>` +
+      `<span class="pill">~${run.timeSaved}% vs ${run.manual}m manual</span>`;
+
+    // tiles
+    const tiles = [
+      { k: "Auto-fixed", v: run.autoFixed, s: "mechanical", cls: "good" },
+      { k: "Needs Bob", v: run.needsBob, s: "semantic", cls: run.needsBob ? "warn" : "" },
+      { k: "Files changed", v: run.filesChanged, s: "in working copy", cls: "" },
+      { k: "Modules", v: run.modulesTotal, s: "touched", cls: "accent" },
+      { k: run.tests ? "Tests after" : "Verify", v: run.tests ? run.tests.after : (run.verify.after ? "OK" : "FAIL"), s: run.tests ? `was ${run.tests.before}` : run.verify.label, cls: (run.tests ? run.tests.after > 0 : run.verify.after) ? "good" : "bad" },
+      { k: "Time saved", v: "~" + run.timeSaved + "%", s: "vs manual", cls: "accent" },
+    ];
+    $("tiles").innerHTML = tiles.map((t) =>
+      `<div class="tile ${t.cls}"><div class="k">${t.k}</div><div class="v">${t.v}</div><div class="s">${t.s}</div></div>`
+    ).join("");
+
+    // before/after
+    if (run.tests) {
+      $("baTitle").innerHTML = "Tests passing — before &rarr; after";
+      const max = run.tests.total || 1;
+      const hB = Math.max(4, Math.round((run.tests.before / max) * 96));
+      const hA = Math.max(4, Math.round((run.tests.after / max) * 96));
+      $("baBody").innerHTML = `
+        <div class="ba">
+          <div class="lane">
+            <div class="lab">Before · naive upgrade</div>
+            <div class="bar-track"><div class="bar bad" style="height:${hB}px"></div></div>
+            <div class="num" style="color:var(--bad)">${run.tests.before}</div>
+            <div class="cap">passing of ${max}</div>
+          </div>
+          <div class="lane">
+            <div class="lab">After · PatchPilot</div>
+            <div class="bar-track"><div class="bar good" style="height:${hA}px"></div></div>
+            <div class="num" style="color:var(--good)">${run.tests.after}</div>
+            <div class="cap">passing of ${max}</div>
+          </div>
+        </div>`;
+    } else {
+      $("baTitle").innerHTML = "Verify gate — before &rarr; after";
+      const chip = (lab, ok) =>
+        `<div class="vchip"><div class="lab">${lab}</div><div class="st" style="color:${ok ? "var(--good)" : "var(--bad)"}">${ok ? "✓ OK" : "✗ FAIL"} <span style="color:var(--muted);font-weight:400">${run.verify.label}</span></div></div>`;
+      $("baBody").innerHTML =
+        `<div class="verify-chips">${chip("Before", run.verify.before)}${chip("After", run.verify.after)}</div>` +
+        `<div class="note">Repo was already clean — no mechanical breakage. PatchPilot flagged ${run.needsBob} semantic site(s) for Bob and left the build green.</div>`;
+    }
+
+    // agents
+    $("agents").innerHTML = run.agents.map((a) => {
+      const ico = a.status === "good" ? "✓" : "◆";
+      const right = a.tests
+        ? `<div class="n">${a.tests} tests</div><div class="meta">${a.fixes} fixes</div>`
+        : `<div class="n">${a.flags} → Bob</div><div class="meta">${a.fixes} fixes</div>`;
+      return `<div class="agent">
+        <div class="st-ico ${a.status}">${ico}</div>
+        <div><div class="name">${esc(a.name)}</div><div class="meta">${a.status === "good" ? "fixed & verified" : "semantic — needs Bob"}</div></div>
+        <div class="right">${right}</div>
+      </div>`;
+    }).join("");
+
+    // dep usage
+    $("depTitle").textContent = `${run.dep} footprint`;
+    $("depgrid").innerHTML = [
+      ["Files", run.depUsage.files],
+      ["Modules", run.depUsage.modules],
+      ["Imports", run.depUsage.imports],
+    ].map(([l, n]) => `<div class="d"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
+    $("depNote").textContent = run.tests
+      ? `Full-repo scan mapped every ${run.dep} usage before planning the parallel fix.`
+      : `Scanned across the real ${run.depUsage.files}-file surface; only import sites that need change are touched.`;
+
+    // rules
+    $("rulesBody").innerHTML = run.rules.map((r) => {
+      const tag = r.by === "auto" ? `<span class="tag auto">auto</span>` : `<span class="tag bob">Bob</span>`;
+      return `<tr><td class="code">${esc(r.change)}</td><td>${esc(r.where)}</td><td>${tag}</td></tr>`;
+    }).join("");
+  }
+
+  // tabs
+  $("runsel").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-run]");
+    if (!b) return;
+    [...$("runsel").children].forEach((x) => x.setAttribute("aria-selected", x === b));
+    render(RUNS[b.dataset.run]);
+  });
+
+  // load report.json
+  $("loadBtn").addEventListener("click", () => $("fileInput").click());
+  $("fileInput").addEventListener("change", (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      try {
+        const j = JSON.parse(rd.result);
+        const run = {
+          label: j.label || j.jobId || "Loaded run",
+          dep: j.dependency, from: j.from, to: j.to,
+          strategy: j.moduleStrategy, verifyMode: j.verifyCmd || j.verifyMode,
+          duration: j.durationSeconds, manual: j.manualEstimateMinutes, timeSaved: j.timeSavedPercent,
+          mergeReady: j.mergeReady,
+          autoFixed: j.totalFixes, filesChanged: j.filesChanged, modulesFixed: j.modulesFixed,
+          needsBob: j.flaggedForBob, modulesTotal: j.modulesTotal,
+          depUsage: { files: j.dependencyUsage.files, modules: j.dependencyUsage.modules, imports: j.dependencyUsage.importSites },
+          verify: { before: j.verifyBefore.ok, after: j.verifyAfter.ok, label: "verify" },
+          agents: [{ name: "(load patch-results.json for per-module detail)", status: j.mergeReady ? "good" : "warn", fixes: j.totalFixes, flags: j.flaggedForBob, tests: null }],
+          rules: [],
+        };
+        if (j.verifyAfter && typeof j.verifyAfter.pass === "number" && j.verifyAfter.pass > 0) {
+          run.tests = { before: j.verifyBefore.pass || 0, after: j.verifyAfter.pass, total: Math.max(j.verifyAfter.pass, j.verifyBefore.pass || 0) };
+        }
+        render(run);
+        [...$("runsel").children].forEach((x) => x.setAttribute("aria-selected", "false"));
+      } catch (err) {
+        alert("report.json o'qib bo'lmadi: " + err.message);
+      }
+    };
+    rd.readAsText(f);
+  });
+
+  render(RUNS.sample);
+</script>

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sign in · PatchPilot</title>
+<link rel="stylesheet" href="/assets/apple.css">
+</head>
+<body>
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="/">
+        <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="4"/></svg></span>
+        PatchPilot
+      </a>
+      <div class="nav-links">
+        <a href="/register">Create account</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="auth">
+    <form class="auth-card" id="form" novalidate>
+      <div class="auth-brand">
+        <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="4"/></svg></span>
+        PatchPilot
+      </div>
+      <h1>Welcome back</h1>
+      <p class="sub">Sign in to run and review your upgrades.</p>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@company.com" required>
+        <span class="err" id="email-err"></span>
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="pw-wrap">
+          <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Your password" required>
+          <button type="button" class="toggle" data-target="password" aria-label="Show password">Show</button>
+        </div>
+        <span class="err" id="password-err"></span>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:22px;">Sign in</button>
+
+      <div class="auth-foot">New here? <a href="/register">Create an account</a></div>
+      <div class="auth-alt"><a href="/app" class="btn btn-ghost">Continue to console →</a></div>
+      <p class="demo-note">Prototype UI — this form validates locally and opens the console. No credentials are stored or sent.</p>
+    </form>
+  </main>
+
+  <script src="/assets/auth.js"></script>
+</body>
+</html>

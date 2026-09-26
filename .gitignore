@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# PatchPilot run artifacts
+.work/
+**/.work/
+**/.patchpilot/
+
+# Build output (rebuild with: npm run build:landing)
+**/dist/
+
+# Lockfiles (kept out for a clean hackathon repo)
+package-lock.json
+**/package-lock.json
+
+# Secrets — NEVER commit (IBM Cloud creds → account suspension)
+.env
+.env.*
+**/.env
+**/.env.*
+*.pem
+*.key
+
+# OS / logs
+.DS_Store
+*.log

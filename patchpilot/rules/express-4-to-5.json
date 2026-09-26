@@ -1,0 +1,43 @@
+{
+  "dependency": "express",
+  "from": "4",
+  "to": "5",
+  "source": "Express 5 migration guide + path-to-regexp v8 (FIXTURE — full versiyada IBM Bob 2.0 buni document understanding orqali o'zi chiqaradi)",
+  "rules": [
+    {
+      "id": "app-del-to-delete",
+      "kind": "renameMethodDel",
+      "oldApi": "app.del(",
+      "newApi": "app.delete(",
+      "severity": "breaking"
+    },
+    {
+      "id": "req-param-removed",
+      "kind": "reqParam",
+      "oldApi": "req.param('x')",
+      "newApi": "req.params.x",
+      "severity": "breaking"
+    },
+    {
+      "id": "res-redirect-back",
+      "kind": "redirectBack",
+      "oldApi": "res.redirect('back')",
+      "newApi": "res.redirect(req.get('Referrer') || '/')",
+      "severity": "breaking"
+    },
+    {
+      "id": "optional-param",
+      "kind": "optionalParam",
+      "oldApi": "/:id?",
+      "newApi": "{/:id}",
+      "severity": "breaking"
+    },
+    {
+      "id": "wildcard-route",
+      "kind": "wildcard",
+      "oldApi": "'*'",
+      "newApi": "'/*splat'",
+      "severity": "breaking"
+    }
+  ]
+}
