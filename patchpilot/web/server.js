@@ -125,6 +125,12 @@ const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
   const p = url.pathname;
 
+  // Health check (keep-warm ping — cheap, spawns nothing)
+  if (p === '/healthz' || p === '/health') {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    return res.end('ok');
+  }
+
   // API
   if (p === '/api/targets') {
     const list = Object.entries(TARGETS).map(([k, v]) => ({ key: k, label: v.label }));
