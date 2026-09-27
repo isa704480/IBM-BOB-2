@@ -65,11 +65,14 @@ GitHub App that opens the merge-ready PR automatically.
 
 ---
 
-## Links (fill before submitting)
-- 🔗 **GitHub (public):** `<https://github.com/isa704480/PatchPilot>`
-- 🎥 **Demo video (≤5 min):** `<video link>`
-- 🖥️ **Demo / Application URL:** `<deployed URL, or "run locally: cd patchpilot && npm run site → http://localhost:4300">`
+## Links
+- 🔗 **GitHub (public):** https://github.com/isa704480/IBM-BOB-2
+- 🖥️ **Live app (Application URL):** https://patchpilot-jpxb.onrender.com
+- 🎥 **Demo video (≤5 min):** `<video link — add after recording>`
 - 📸 **Cover image:** the landing hero or the console "0 → 11 / Merge-ready" screen.
+
+> Try it live: open the app → **Console** → pick **sample-monorepo** → **Run** → watch 0 → 11 green.
+> (Render free tier: first load may take ~30 s to wake; a keep-warm ping runs every 5 min.)
 
 ## Bob usage evidence (in repo)
 - `HOW_BOB_WAS_USED.md` · `bob_sessions/` (task session screenshots) · `AGENTS.md` · `sample-monorepo/EXPRESS5_MIGRATION.md`

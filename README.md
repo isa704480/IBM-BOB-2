@@ -7,6 +7,8 @@
 
 Built for the **IBM Bob 2.0 Hackathon**.
 
+**🖥️ Live app:** https://patchpilot-jpxb.onrender.com — open **Console → sample-monorepo → Run** to watch a real `express 4 → 5` upgrade go from **0 → 11 tests** in your browser.
+
 ---
 
 ## The problem
