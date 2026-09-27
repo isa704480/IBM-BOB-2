@@ -1,0 +1,17 @@
+# Render deployment for the PatchPilot web app (landing + live console + auth).
+# The app is a real Node server (SSE live log + spawns the pipeline), so it needs a
+# long-lived host — Render/Railway/Fly, NOT Vercel serverless.
+#
+# Deploy: render.com → New → Blueprint → connect this repo → it reads this file.
+services:
+  - type: web
+    name: patchpilot
+    runtime: node
+    plan: free
+    rootDir: patchpilot
+    buildCommand: npm --prefix landing install && npm --prefix landing run build
+    startCommand: node web/server.js
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
