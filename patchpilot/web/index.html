@@ -3,297 +3,234 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>PatchPilot</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<title>PatchPilot Console</title>
+<link rel="stylesheet" href="/assets/apple.css">
 <style>
-  :root {
-    --bg:#f5f7fa; --surface:#fff; --surface-2:#eef1f6; --border:#dde3ec;
-    --ink:#141c27; --ink-2:#45566b; --muted:#8592a4;
-    --accent:#2563eb; --accent-soft:rgba(37,99,235,.1);
-    --good:#12855a; --good-soft:rgba(18,133,90,.12);
-    --warn:#b26b08; --warn-soft:rgba(178,107,8,.13);
-    --bad:#cf3b34; --bad-soft:rgba(207,59,52,.12);
-    --term-bg:#0d1320; --term-ink:#c9d6e5;
-    --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
-    --sans:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,sans-serif;
-    --shadow:0 1px 2px rgba(20,28,39,.05),0 4px 16px rgba(20,28,39,.04);
-    --radius:12px; color-scheme:light;
-  }
-  @media (prefers-color-scheme:dark){:root{
-    color-scheme:dark;
-    --bg:#0c1017; --surface:#141a23; --surface-2:#1b232e; --border:#28323f;
-    --ink:#e7edf4; --ink-2:#aab7c6; --muted:#7b8896;
-    --accent:#5891ff; --accent-soft:rgba(88,145,255,.15);
-    --good:#45c68d; --good-soft:rgba(69,198,141,.14);
-    --warn:#e3a648; --warn-soft:rgba(227,166,72,.15);
-    --bad:#f3675e; --bad-soft:rgba(243,103,94,.14);
-    --term-bg:#080c14; --term-ink:#c9d6e5;
-    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25);
-  }}
-  *{box-sizing:border-box}
-  html,body{margin:0}
-  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:28px 56px}
-  .top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-  .mark{width:40px;height:40px;border-radius:10px;flex:none;background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 60%,#7b5cff));display:grid;place-items:center;color:#fff;box-shadow:var(--shadow)}
-  .mark svg{width:22px;height:22px}
-  .brand h1{font-size:21px;font-weight:600;margin:0;letter-spacing:-.02em}
-  .brand p{margin:0;font-size:12.5px;color:var(--muted)}
+  .lead { padding-block: clamp(30px,5vw,52px) 8px; text-align:center; }
+  .control { display:flex; gap:14px; align-items:center; flex-wrap:wrap; padding:16px 20px; }
+  .target-chip { display:inline-flex; align-items:center; gap:9px; font-family:var(--mono); font-size:13.5px; color:var(--text); background:var(--surface-2); border:1px solid var(--hairline); padding:9px 14px; border-radius:var(--r-pill); }
+  .target-chip .dep { color:var(--accent); font-weight:600; }
+  .run { margin-left:auto; }
+  .status { font-family:var(--mono); font-size:12.5px; color:var(--text-3); }
+  .spinner { width:14px; height:14px; border:2px solid rgba(255,255,255,.45); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
 
-  .control{margin-top:20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
-  .seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:3px}
-  .seg button{font-family:var(--sans);font-size:13px;font-weight:500;color:var(--ink-2);border:0;background:transparent;padding:7px 14px;border-radius:7px;cursor:pointer}
-  .seg button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
-  .run{margin-left:auto;font-family:var(--sans);font-size:14px;font-weight:600;color:#fff;background:var(--accent);border:0;padding:10px 20px;border-radius:10px;cursor:pointer;display:inline-flex;gap:8px;align-items:center}
-  .run:disabled{opacity:.55;cursor:default}
-  .status{font-family:var(--mono);font-size:12px;color:var(--muted)}
-  .spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  @media (prefers-reduced-motion:reduce){.spinner{animation:none}}
+  /* terminal (dark card in a light page — like an IDE console) */
+  .term { margin-top:16px; background:#0d1320; border-radius:var(--r-panel); box-shadow:var(--sh-panel); overflow:hidden; }
+  .term-bar { display:flex; align-items:center; gap:7px; padding:11px 15px; border-bottom:1px solid rgba(255,255,255,.07); }
+  .term-bar .d { width:11px; height:11px; border-radius:50%; }
+  .term-bar .t { margin-left:8px; font-family:var(--mono); font-size:12px; color:#7f8da0; }
+  .term-body { font-family:var(--mono); font-size:12.5px; color:#c9d6e5; padding:14px 16px; max-height:300px; overflow:auto; white-space:pre-wrap; word-break:break-word; }
+  .term-body .l { padding:1px 0; }
+  .term-body .l.scope { color:#7fb0ff; }
+  .term-body .l.ok { color:#54d19a; }
+  .term-body .l.warn { color:#e8b062; }
+  .term-body .l.bad { color:#f0837b; }
+  .term-empty { color:#5c6a80; }
 
-  .term{margin-top:16px;background:var(--term-bg);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
-  .term-bar{display:flex;align-items:center;gap:7px;padding:9px 13px;border-bottom:1px solid rgba(255,255,255,.07)}
-  .term-bar .d{width:11px;height:11px;border-radius:50%}
-  .term-bar .t{margin-left:8px;font-family:var(--mono);font-size:11.5px;color:#7f8 da0;color:#7f8da0}
-  .term-body{font-family:var(--mono);font-size:12.5px;color:var(--term-ink);padding:14px 16px;max-height:280px;overflow:auto;white-space:pre-wrap;word-break:break-word}
-  .term-body .l{padding:1px 0}
-  .term-body .l.scope{color:#7fb0ff}
-  .term-body .l.ok{color:#54d19a}
-  .term-body .l.warn{color:#e8b062}
-  .term-body .l.bad{color:#f0837b}
-  .term-empty{color:#5c6a80}
+  .tiles { display:grid; grid-template-columns:repeat(6,1fr); gap:12px; margin-top:16px; }
+  .tile { background:var(--surface); border:1px solid var(--hairline); border-radius:var(--r-card); padding:14px 15px; box-shadow:var(--sh-card); }
+  .tile .k { font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-3); font-weight:600; }
+  .tile .v { font-family:var(--mono); font-size:26px; font-weight:600; letter-spacing:-.02em; margin-top:6px; font-variant-numeric:tabular-nums; }
+  .tile .s { font-size:11.5px; color:var(--text-2); margin-top:2px; }
+  .tile.accent .v { color:var(--accent); } .tile.good .v { color:var(--good); } .tile.warn .v { color:var(--warn); } .tile.bad .v { color:var(--bad); }
 
-  #results[hidden]{display:none}
-  .runhead{margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 20px;display:flex;gap:14px 22px;align-items:center;flex-wrap:wrap}
-  .runhead .rh-title{font-size:16px;font-weight:600;letter-spacing:-.01em}
-  .runhead .rh-sub{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:2px}
-  .runhead .rh-right{margin-left:auto;display:flex;gap:9px;align-items:center;flex-wrap:wrap}
-  .badge{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;padding:5px 11px;border-radius:999px;border:1px solid transparent}
-  .badge.good{color:var(--good);background:var(--good-soft);border-color:color-mix(in srgb,var(--good) 30%,transparent)}
-  .badge.bad{color:var(--bad);background:var(--bad-soft);border-color:color-mix(in srgb,var(--bad) 30%,transparent)}
-  .badge .dot{width:7px;height:7px;border-radius:50%;background:currentColor}
-  .pill{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--border);padding:4px 9px;border-radius:7px}
-
-  .tiles{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:14px}
-  .tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 15px;box-shadow:var(--shadow)}
-  .tile .k{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
-  .tile .v{font-family:var(--mono);font-size:26px;font-weight:600;letter-spacing:-.02em;margin-top:6px;font-variant-numeric:tabular-nums}
-  .tile .s{font-size:11.5px;color:var(--ink-2);margin-top:2px}
-  .tile.accent .v{color:var(--accent)} .tile.good .v{color:var(--good)} .tile.warn .v{color:var(--warn)} .tile.bad .v{color:var(--bad)}
-
-  .cols{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;margin-top:16px;align-items:start}
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px}
-  .card h2{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-2);margin:0 0 14px;font-weight:600}
-  .stack{display:flex;flex-direction:column;gap:16px}
-  .ba{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  .lane{background:var(--surface-2);border-radius:10px;padding:14px;text-align:center}
-  .lane .lab{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
-  .bar-track{height:92px;display:flex;align-items:flex-end;justify-content:center;margin:10px 0 8px}
-  .bar{width:44px;border-radius:5px 5px 0 0;min-height:4px;transition:height .5s ease}
-  .bar.bad{background:var(--bad)} .bar.good{background:var(--good)}
-  .lane .num{font-family:var(--mono);font-size:20px;font-weight:600}
-  .lane .cap{font-size:11.5px;color:var(--ink-2)}
-  .vchips{display:flex;gap:12px;flex-wrap:wrap}
-  .vchip{flex:1;min-width:130px;background:var(--surface-2);border-radius:10px;padding:13px 14px}
-  .vchip .lab{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
-  .vchip .st{font-family:var(--mono);font-size:15px;font-weight:600;margin-top:6px}
-  .note{font-size:12.5px;color:var(--ink-2);margin-top:14px;padding:11px 13px;background:var(--surface-2);border-radius:9px;border-left:3px solid var(--accent)}
-  .agents{display:flex;flex-direction:column;gap:10px}
-  .agent{border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px}
-  .agent .name{font-family:var(--mono);font-size:13px;font-weight:600}
-  .agent .meta{font-size:12px;color:var(--muted);margin-top:1px}
-  .agent .right{margin-left:auto;text-align:right}
-  .agent .right .n{font-family:var(--mono);font-size:13px}
-  .st-ico{width:26px;height:26px;border-radius:7px;flex:none;display:grid;place-items:center;font-size:14px}
-  .st-ico.good{background:var(--good-soft);color:var(--good)} .st-ico.warn{background:var(--warn-soft);color:var(--warn)}
-  .depgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-  .depgrid .d{background:var(--surface-2);border-radius:10px;padding:13px;text-align:center}
-  .depgrid .d .n{font-family:var(--mono);font-size:22px;font-weight:600}
-  .depgrid .d .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-  table.rules{width:100%;border-collapse:collapse;font-size:12.5px}
-  table.rules th{text-align:left;color:var(--muted);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;padding:6px 8px;border-bottom:1px solid var(--border)}
-  table.rules td{padding:8px;border-bottom:1px solid var(--border)}
-  table.rules td.code{font-family:var(--mono);font-size:11.5px;color:var(--ink-2)}
-  table.rules tr:last-child td{border-bottom:0}
-  .tag{font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:6px}
-  .tag.auto{color:var(--good);background:var(--good-soft)} .tag.bob{color:var(--warn);background:var(--warn-soft)}
-  footer{margin-top:22px;font-size:12px;color:var(--muted);text-align:center}
-  footer code{font-family:var(--mono);color:var(--ink-2)}
-  @media (max-width:860px){.tiles{grid-template-columns:repeat(3,1fr)}.cols{grid-template-columns:1fr}}
-  @media (max-width:480px){.tiles{grid-template-columns:repeat(2,1fr)}.depgrid{grid-template-columns:1fr}}
+  .cols { display:grid; grid-template-columns:1.1fr .9fr; gap:16px; margin-top:16px; align-items:start; }
+  .card { background:var(--surface); border:1px solid var(--hairline); border-radius:var(--r-panel); box-shadow:var(--sh-card); padding:18px 20px; }
+  .card h2 { font-size:13px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-2); margin:0 0 14px; font-weight:600; }
+  .stack { display:flex; flex-direction:column; gap:16px; }
+  .ba { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .lane { background:var(--surface-2); border-radius:var(--r-thumb); padding:14px; text-align:center; }
+  .lane .lab { font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-3); font-weight:600; }
+  .bar-track { height:92px; display:flex; align-items:flex-end; justify-content:center; margin:10px 0 8px; }
+  .bar { width:44px; border-radius:5px 5px 0 0; min-height:4px; transition:height .6s var(--ease-out-quart); }
+  .bar.bad { background:var(--bad); } .bar.good { background:var(--good); }
+  .lane .num { font-family:var(--mono); font-size:20px; font-weight:600; }
+  .lane .cap { font-size:11.5px; color:var(--text-2); }
+  .agents { display:flex; flex-direction:column; gap:10px; }
+  .agent { border:1px solid var(--hairline); border-radius:var(--r-thumb); padding:12px 14px; display:flex; align-items:center; gap:12px; }
+  .agent .name { font-family:var(--mono); font-size:13px; font-weight:600; }
+  .agent .meta { font-size:12px; color:var(--text-3); margin-top:1px; }
+  .agent .right { margin-left:auto; text-align:right; }
+  .agent .right .n { font-family:var(--mono); font-size:13px; }
+  .st-ico { width:26px; height:26px; border-radius:7px; flex:none; display:grid; place-items:center; font-size:14px; }
+  .st-ico.good { background:var(--good-soft); color:var(--good); } .st-ico.warn { background:var(--warn-soft); color:var(--warn); }
+  .depgrid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .depgrid .d { background:var(--surface-2); border-radius:var(--r-thumb); padding:13px; text-align:center; }
+  .depgrid .d .n { font-family:var(--mono); font-size:22px; font-weight:600; }
+  .depgrid .d .l { font-size:11px; color:var(--text-3); text-transform:uppercase; letter-spacing:.05em; }
+  table.rules { width:100%; border-collapse:collapse; font-size:12.5px; }
+  table.rules th { text-align:left; color:var(--text-3); font-weight:600; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; padding:6px 8px; border-bottom:1px solid var(--hairline); }
+  table.rules td { padding:8px; border-bottom:1px solid var(--hairline); }
+  table.rules td.code { font-family:var(--mono); font-size:11.5px; color:var(--text-2); }
+  table.rules tr:last-child td { border-bottom:0; }
+  .tag { font-size:10.5px; font-weight:600; padding:2px 7px; border-radius:6px; }
+  .tag.auto { color:var(--good); background:var(--good-soft); } .tag.bob { color:var(--warn); background:var(--warn-soft); }
+  #results[hidden] { display:none; }
+  @media (max-width:860px){ .tiles{ grid-template-columns:repeat(3,1fr);} .cols{ grid-template-columns:1fr;} }
+  @media (max-width:480px){ .tiles{ grid-template-columns:repeat(2,1fr);} .depgrid{ grid-template-columns:1fr;} }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="top">
-    <div class="mark" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="4"/></svg>
-    </div>
-    <div class="brand">
-      <h1>PatchPilot</h1>
-      <p>Agentic dependency-upgrade autopilot &middot; IBM Bob 2.0</p>
-    </div>
-  </header>
-
-  <section class="control">
-    <div class="seg" role="tablist" id="targetSel"></div>
-    <button class="run" id="runBtn">Run upgrade</button>
-    <span class="status" id="status">tanlab, Run bosing</span>
-  </section>
-
-  <section class="term">
-    <div class="term-bar">
-      <span class="d" style="background:#ff5f57"></span><span class="d" style="background:#febc2e"></span><span class="d" style="background:#28c840"></span>
-      <span class="t">patchpilot run</span>
-    </div>
-    <div class="term-body" id="log"><span class="term-empty">// jonli log shu yerda oqadi…</span></div>
-  </section>
-
-  <section id="results" hidden>
-    <div class="runhead">
-      <div><div class="rh-title" id="rhTitle"></div><div class="rh-sub" id="rhSub"></div></div>
-      <div class="rh-right" id="rhRight"></div>
-    </div>
-    <div class="tiles" id="tiles"></div>
-    <div class="cols">
-      <div class="stack">
-        <div class="card"><h2 id="baTitle"></h2><div id="baBody"></div></div>
-        <div class="card"><h2>Subagents (parallel)</h2><div class="agents" id="agents"></div></div>
-      </div>
-      <div class="stack">
-        <div class="card"><h2 id="depTitle"></h2><div class="depgrid" id="depgrid"></div><div class="note" id="depNote"></div></div>
-        <div class="card"><h2>Migration breakdown</h2><table class="rules"><thead><tr><th>Change</th><th>Module</th><th>By</th></tr></thead><tbody id="rulesBody"></tbody></table></div>
+  <nav class="nav" id="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="/">
+        <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="4"/></svg></span>
+        PatchPilot
+      </a>
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/demo" class="hide-sm">Demo</a>
+        <a href="/console" aria-current="page">Console</a>
+        <a href="/login">Sign in</a>
       </div>
     </div>
-  </section>
+  </nav>
 
-  <footer>Deterministic layer handles mechanical fixes; <code>needs_bob</code> items route to IBM Bob 2.0 subagents.</footer>
-</div>
+  <main class="container">
+    <header class="lead read">
+      <span class="eyebrow">Live console</span>
+      <h1 class="h2">Run a real upgrade</h1>
+      <p class="sub">Pick a project, hit Run, and watch PatchPilot take a breaking dependency upgrade from red to green — live.</p>
+    </header>
 
-<script>
-  const $ = (id) => document.getElementById(id);
-  const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-  let current = 'sample';
-  let running = false;
+    <section class="panel control">
+      <span class="target-chip" id="targetChip"><span class="dot" style="width:8px;height:8px;border-radius:50%;background:var(--accent)"></span> <span id="targetLabel">sample-monorepo</span></span>
+      <button class="btn btn-primary run" id="runBtn">Run upgrade</button>
+      <span class="status" id="status">Ready — press Run</span>
+    </section>
 
-  // targetlarni yuklash
-  fetch('/api/targets').then((r) => r.json()).then((list) => {
-    $('targetSel').innerHTML = list.map((t, i) =>
-      `<button role="tab" data-t="${t.key}" aria-selected="${i === 0}">${esc(t.label.split(' (')[0])}</button>`
-    ).join('');
-    current = list[0].key;
-  });
+    <section class="term">
+      <div class="term-bar">
+        <span class="d" style="background:#ff5f57"></span><span class="d" style="background:#febc2e"></span><span class="d" style="background:#28c840"></span>
+        <span class="t">patchpilot run</span>
+      </div>
+      <div class="term-body" id="log"><span class="term-empty">// live log streams here…</span></div>
+    </section>
 
-  $('targetSel').addEventListener('click', (e) => {
-    const b = e.target.closest('button[data-t]');
-    if (!b || running) return;
-    [...$('targetSel').children].forEach((x) => x.setAttribute('aria-selected', x === b));
-    current = b.dataset.t;
-  });
+    <section id="results" hidden>
+      <div class="panel control" style="margin-top:16px;">
+        <div><div style="font-size:16px;font-weight:600;letter-spacing:-.01em;" id="rhTitle"></div><div class="status" id="rhSub" style="margin-top:2px;"></div></div>
+        <div class="run" style="display:flex;gap:9px;align-items:center;flex-wrap:wrap;" id="rhRight"></div>
+      </div>
+      <div class="tiles" id="tiles"></div>
+      <div class="cols">
+        <div class="stack">
+          <div class="card"><h2 id="baTitle">Tests — before &rarr; after</h2><div id="baBody"></div></div>
+          <div class="card"><h2>Subagents (parallel)</h2><div class="agents" id="agents"></div></div>
+        </div>
+        <div class="stack">
+          <div class="card"><h2 id="depTitle">Dependency footprint</h2><div class="depgrid" id="depgrid"></div><div class="sub" id="depNote" style="text-align:left;margin-top:12px;font-size:12.5px;"></div></div>
+          <div class="card"><h2>Migration breakdown</h2><table class="rules"><thead><tr><th>Change</th><th>Module</th><th>By</th></tr></thead><tbody id="rulesBody"></tbody></table></div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-  function logLine(line) {
-    const el = document.createElement('div');
-    el.className = 'l';
-    if (/✅|OK ✅|passing|success/.test(line)) el.classList.add('ok');
-    else if (/needs_bob|flag|BROKEN|❌/.test(line)) el.classList.add(/BROKEN|❌/.test(line) ? 'bad' : 'warn');
-    else if (/^\[/.test(line)) el.classList.add('scope');
-    el.textContent = line;
-    const box = $('log');
-    box.appendChild(el);
-    box.scrollTop = box.scrollHeight;
-  }
+  <footer class="footer"><div class="container footer-inner"><span>© 2026 PatchPilot · Built with IBM Bob 2.0</span><span style="display:flex;gap:16px;"><a href="/">Home</a><a href="/demo">Demo</a></span></div></footer>
 
-  $('runBtn').addEventListener('click', () => {
-    if (running) return;
-    running = true;
-    $('runBtn').disabled = true;
-    $('runBtn').innerHTML = '<span class="spinner"></span> Running…';
-    $('status').textContent = 'ishlayapti…';
-    $('results').hidden = true;
-    $('log').innerHTML = '';
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[c]));
+    let running = false, current = 'sample';
 
-    const es = new EventSource('/api/run?target=' + encodeURIComponent(current));
-    es.addEventListener('start', (e) => logLine('▶ ' + JSON.parse(e.data).label));
-    es.addEventListener('log', (e) => logLine(JSON.parse(e.data).line));
-    es.addEventListener('done', (e) => { es.close(); finish(JSON.parse(e.data)); });
-    es.addEventListener('error', (e) => {
-      es.close();
-      logLine('✗ ' + (e.data ? JSON.parse(e.data).message : 'ulanish uzildi'));
-      reset('xatolik');
+    const nav = $('nav');
+    addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 8), { passive: true });
+
+    fetch('/api/targets').then((r) => r.json()).then((list) => {
+      if (list[0]) { current = list[0].key; $('targetLabel').textContent = list[0].label; }
+    }).catch(() => {});
+
+    function logLine(line) {
+      const el = document.createElement('div');
+      el.className = 'l';
+      if (/OK ✅|passing|✅|success/.test(line)) el.classList.add('ok');
+      else if (/BROKEN|❌|STILL/.test(line)) el.classList.add('bad');
+      else if (/needs_bob|flag|⚠️/.test(line)) el.classList.add('warn');
+      else if (/^\[/.test(line)) el.classList.add('scope');
+      el.textContent = line;
+      $('log').appendChild(el);
+      $('log').scrollTop = $('log').scrollHeight;
+    }
+
+    $('runBtn').addEventListener('click', () => {
+      if (running) return;
+      running = true;
+      $('runBtn').disabled = true;
+      $('runBtn').innerHTML = '<span class="spinner"></span> Running…';
+      $('status').textContent = 'running…';
+      $('results').hidden = true;
+      $('log').innerHTML = '';
+
+      const es = new EventSource('/api/run?target=' + encodeURIComponent(current));
+      es.addEventListener('start', (e) => logLine('▶ ' + JSON.parse(e.data).label));
+      es.addEventListener('log', (e) => logLine(JSON.parse(e.data).line));
+      es.addEventListener('done', (e) => { es.close(); finish(JSON.parse(e.data)); });
+      es.addEventListener('error', (e) => { es.close(); logLine('✗ ' + (e.data ? JSON.parse(e.data).message : 'connection closed')); reset('error'); });
     });
-  });
 
-  function reset(msg) {
-    running = false;
-    $('runBtn').disabled = false;
-    $('runBtn').textContent = 'Run upgrade';
-    $('status').textContent = msg || 'tayyor';
-  }
-
-  function finish({ report, results }) {
-    render(report, results || []);
-    $('results').hidden = false;
-    reset(`bajarildi · ${report.durationSeconds}s`);
-  }
-
-  function render(r, results) {
-    $('rhTitle').textContent = r.label || `${r.dependency} ${r.from} → ${r.to}`;
-    $('rhSub').textContent = `${r.dependency} ${r.from} → ${r.to}  ·  ${r.moduleStrategy}  ·  verify: ${r.verifyCmd || r.verifyMode}`;
-    $('rhRight').innerHTML =
-      (r.mergeReady ? '<span class="badge good"><span class="dot"></span>Merge-ready</span>'
-                    : '<span class="badge bad"><span class="dot"></span>Blocked</span>') +
-      `<span class="pill">${r.durationSeconds}s</span><span class="pill">~${r.timeSavedPercent}% vs ${r.manualEstimateMinutes}m</span>`;
-
-    const hasTests = r.verifyAfter && r.verifyAfter.pass > 0;
-    const tiles = [
-      { k: 'Auto-fixed', v: r.totalFixes, s: 'mechanical', c: 'good' },
-      { k: 'Needs Bob', v: r.flaggedForBob, s: 'semantic', c: r.flaggedForBob ? 'warn' : '' },
-      { k: 'Files changed', v: r.filesChanged, s: 'working copy', c: '' },
-      { k: 'Modules', v: r.modulesTotal, s: 'touched', c: 'accent' },
-      { k: hasTests ? 'Tests after' : 'Verify', v: hasTests ? r.verifyAfter.pass : (r.verifyAfter.ok ? 'OK' : 'FAIL'), s: hasTests ? `was ${r.verifyBefore.pass}` : 'typecheck', c: (hasTests ? r.verifyAfter.pass > 0 : r.verifyAfter.ok) ? 'good' : 'bad' },
-      { k: 'Time saved', v: '~' + r.timeSavedPercent + '%', s: 'vs manual', c: 'accent' },
-    ];
-    $('tiles').innerHTML = tiles.map((t) => `<div class="tile ${t.c}"><div class="k">${t.k}</div><div class="v">${t.v}</div><div class="s">${t.s}</div></div>`).join('');
-
-    if (hasTests) {
-      $('baTitle').innerHTML = 'Tests passing — before &rarr; after';
-      const max = Math.max(r.verifyAfter.pass, r.verifyBefore.pass || 0) || 1;
-      const h = (n) => Math.max(4, Math.round((n / max) * 92));
-      $('baBody').innerHTML =
-        `<div class="ba"><div class="lane"><div class="lab">Before · naive upgrade</div><div class="bar-track"><div class="bar bad" style="height:${h(r.verifyBefore.pass)}px"></div></div><div class="num" style="color:var(--bad)">${r.verifyBefore.pass}</div><div class="cap">of ${max}</div></div><div class="lane"><div class="lab">After · PatchPilot</div><div class="bar-track"><div class="bar good" style="height:${h(r.verifyAfter.pass)}px"></div></div><div class="num" style="color:var(--good)">${r.verifyAfter.pass}</div><div class="cap">of ${max}</div></div></div>`;
-    } else {
-      $('baTitle').innerHTML = 'Verify gate — before &rarr; after';
-      const chip = (lab, ok) => `<div class="vchip"><div class="lab">${lab}</div><div class="st" style="color:${ok ? 'var(--good)' : 'var(--bad)'}">${ok ? '✓ OK' : '✗ FAIL'}</div></div>`;
-      $('baBody').innerHTML = `<div class="vchips">${chip('Before', r.verifyBefore.ok)}${chip('After', r.verifyAfter.ok)}</div><div class="note">Repo was already clean — PatchPilot flagged ${r.flaggedForBob} semantic site(s) for Bob and kept the build green.</div>`;
+    function reset(msg) {
+      running = false;
+      $('runBtn').disabled = false;
+      $('runBtn').textContent = 'Run upgrade';
+      $('status').textContent = msg || 'ready';
     }
 
-    $('agents').innerHTML = (results.length ? results : [{ module: '(no modules touched)', status: 'good', applied: [], flaggedForBob: [] }]).map((a) => {
-      const good = a.status === 'success' || a.status === 'applied' || a.status === 'clean';
-      const fixes = (a.applied || []).reduce((x, y) => x + y.count, 0);
-      const flags = (a.flaggedForBob || []).reduce((x, y) => x + y.count, 0);
-      const right = a.testStatus === 'passed' && a.pass != null ? `<div class="n">${a.pass} tests</div><div class="meta">${fixes} fixes</div>`
-        : flags ? `<div class="n" style="color:var(--warn)">${flags} → Bob</div><div class="meta">${fixes} fixes</div>`
-        : `<div class="n">${fixes} fixes</div>`;
-      return `<div class="agent"><div class="st-ico ${good ? 'good' : 'warn'}">${good ? '✓' : '◆'}</div><div><div class="name">${esc(a.module)}</div><div class="meta">${good ? 'fixed & verified' : 'semantic — needs Bob'}</div></div><div class="right">${right}</div></div>`;
-    }).join('');
-
-    const du = r.dependencyUsage || { files: 0, modules: 0, importSites: 0 };
-    $('depTitle').textContent = `${r.dependency} footprint`;
-    $('depgrid').innerHTML = [['Files', du.files], ['Modules', du.modules], ['Imports', du.importSites]]
-      .map(([l, n]) => `<div class="d"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
-    $('depNote').textContent = `Full-repo scan mapped every ${r.dependency} usage before planning the fix.`;
-
-    const rows = [];
-    for (const m of results) {
-      for (const a of (m.applied || [])) rows.push({ change: a.ruleId, mod: m.module, by: 'auto' });
-      for (const f of (m.flaggedForBob || [])) rows.push({ change: f.ruleId, mod: m.module, by: 'bob' });
+    function finish({ report, results }) {
+      render(report, results || []);
+      $('results').hidden = false;
+      reset(`done · ${report.durationSeconds}s`);
     }
-    $('rulesBody').innerHTML = rows.length
-      ? rows.map((x) => `<tr><td class="code">${esc(x.change)}</td><td>${esc(x.mod)}</td><td>${x.by === 'auto' ? '<span class="tag auto">auto</span>' : '<span class="tag bob">Bob</span>'}</td></tr>`).join('')
-      : '<tr><td colspan="3" style="color:var(--muted)">no changes</td></tr>';
-  }
-</script>
+
+    function render(r, results) {
+      $('rhTitle').textContent = r.label || `${r.dependency} ${r.from} → ${r.to}`;
+      $('rhSub').textContent = `${r.dependency} ${r.from} → ${r.to}  ·  ${r.moduleStrategy}  ·  verify: ${r.verifyCmd || r.verifyMode}`;
+      $('rhRight').innerHTML =
+        (r.mergeReady ? '<span class="badge good"><span class="dot"></span>Merge-ready</span>' : '<span class="badge bad"><span class="dot"></span>Blocked</span>') +
+        `<span class="pill">${r.durationSeconds}s</span><span class="pill">~${r.timeSavedPercent}% vs ${r.manualEstimateMinutes}m</span>`;
+
+      const hasTests = r.verifyAfter && r.verifyAfter.pass > 0;
+      const tiles = [
+        { k:'Auto-fixed', v:r.totalFixes, s:'mechanical', c:'good' },
+        { k:'Needs Bob', v:r.flaggedForBob, s:'semantic', c:r.flaggedForBob ? 'warn' : '' },
+        { k:'Files changed', v:r.filesChanged, s:'working copy', c:'' },
+        { k:'Modules', v:r.modulesTotal, s:'touched', c:'accent' },
+        { k:hasTests ? 'Tests after' : 'Verify', v:hasTests ? r.verifyAfter.pass : (r.verifyAfter.ok ? 'OK' : 'FAIL'), s:hasTests ? `was ${r.verifyBefore.pass}` : 'typecheck', c:(hasTests ? r.verifyAfter.pass>0 : r.verifyAfter.ok) ? 'good' : 'bad' },
+        { k:'Time saved', v:'~'+r.timeSavedPercent+'%', s:'vs manual', c:'accent' },
+      ];
+      $('tiles').innerHTML = tiles.map((t) => `<div class="tile ${t.c}"><div class="k">${t.k}</div><div class="v">${t.v}</div><div class="s">${t.s}</div></div>`).join('');
+
+      if (hasTests) {
+        $('baTitle').innerHTML = 'Tests passing — before &rarr; after';
+        const max = Math.max(r.verifyAfter.pass, r.verifyBefore.pass || 0) || 1;
+        const h = (n) => Math.max(4, Math.round((n / max) * 92));
+        $('baBody').innerHTML = `<div class="ba"><div class="lane"><div class="lab">Before · naive upgrade</div><div class="bar-track"><div class="bar bad" style="height:${h(r.verifyBefore.pass)}px"></div></div><div class="num" style="color:var(--bad)">${r.verifyBefore.pass}</div><div class="cap">of ${max}</div></div><div class="lane"><div class="lab">After · PatchPilot</div><div class="bar-track"><div class="bar good" style="height:${h(r.verifyAfter.pass)}px"></div></div><div class="num" style="color:var(--good)">${r.verifyAfter.pass}</div><div class="cap">of ${max}</div></div></div>`;
+      } else {
+        $('baTitle').innerHTML = 'Verify — before &rarr; after';
+        const chip = (lab, ok) => `<div class="lane"><div class="lab">${lab}</div><div class="num" style="color:${ok?'var(--good)':'var(--bad)'};margin-top:14px;">${ok?'✓ OK':'✗ FAIL'}</div></div>`;
+        $('baBody').innerHTML = `<div class="ba">${chip('Before', r.verifyBefore.ok)}${chip('After', r.verifyAfter.ok)}</div>`;
+      }
+
+      $('agents').innerHTML = (results.length ? results : [{ module:'(no modules touched)', status:'good', applied:[], flaggedForBob:[] }]).map((a) => {
+        const good = ['success','applied','clean'].includes(a.status);
+        const fixes = (a.applied||[]).reduce((x,y)=>x+y.count,0);
+        const flags = (a.flaggedForBob||[]).reduce((x,y)=>x+y.count,0);
+        const right = a.testStatus==='passed' && a.pass!=null ? `<div class="n">${a.pass} tests</div><div class="meta">${fixes} fixes</div>` : flags ? `<div class="n" style="color:var(--warn)">${flags} → Bob</div><div class="meta">${fixes} fixes</div>` : `<div class="n">${fixes} fixes</div>`;
+        return `<div class="agent"><div class="st-ico ${good?'good':'warn'}">${good?'✓':'◆'}</div><div><div class="name">${esc(a.module)}</div><div class="meta">${good?'fixed & verified':'semantic — needs Bob'}</div></div><div class="right">${right}</div></div>`;
+      }).join('');
+
+      const du = r.dependencyUsage || { files:0, modules:0, importSites:0 };
+      $('depTitle').textContent = `${r.dependency} footprint`;
+      $('depgrid').innerHTML = [['Files',du.files],['Modules',du.modules],['Imports',du.importSites]].map(([l,n]) => `<div class="d"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
+      $('depNote').textContent = `Full-repo scan mapped every ${r.dependency} usage before planning the fix.`;
+
+      const rows = [];
+      for (const m of results) {
+        for (const a of (m.applied||[])) rows.push({ change:a.ruleId, mod:m.module, by:'auto' });
+        for (const f of (m.flaggedForBob||[])) rows.push({ change:f.ruleId, mod:m.module, by:'bob' });
+      }
+      $('rulesBody').innerHTML = rows.length ? rows.map((x) => `<tr><td class="code">${esc(x.change)}</td><td>${esc(x.mod)}</td><td>${x.by==='auto'?'<span class="tag auto">auto</span>':'<span class="tag bob">Bob</span>'}</td></tr>`).join('') : '<tr><td colspan="3" style="color:var(--text-3)">no changes</td></tr>';
+    }
+  </script>
 </body>
 </html>

@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PatchPilot Demo</title>
+<link rel="stylesheet" href="/assets/apple.css">
+<style>
+  body { overflow:hidden; }
+  .reel { position:relative; height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center; }
+  .progress { position:fixed; top:0; left:0; height:3px; background:var(--accent); width:0; transition:width .2s linear; z-index:50; }
+  .stage { width:100%; max-width:720px; opacity:0; transform:translateY(14px); transition:opacity .5s var(--ease-out-quart), transform .5s var(--ease-out-quart); }
+  .stage.in { opacity:1; transform:none; }
+  .subtitle { position:fixed; left:0; right:0; bottom:48px; display:flex; justify-content:center; padding:0 24px; z-index:40; }
+  .subtitle span { font-size:clamp(18px,3vw,27px); font-weight:600; letter-spacing:-.02em; color:var(--text); background:rgba(245,245,247,.7); backdrop-filter:blur(8px); padding:10px 20px; border-radius:14px; max-width:820px; text-wrap:balance; }
+
+  .biglogo { width:84px; height:84px; border-radius:22px; margin:0 auto 22px; background:var(--grad-cta); display:grid; place-items:center; color:#fff; box-shadow:var(--sh-cta); }
+  .biglogo svg { width:46px; height:46px; }
+  .wordmark { font-size:clamp(40px,8vw,72px); font-weight:700; letter-spacing:-.04em; }
+  .tagline { margin-top:10px; font-size:clamp(16px,2.6vw,21px); color:var(--text-2); }
+
+  .fail-card { display:inline-flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--hairline); border-left:4px solid var(--bad); border-radius:16px; padding:18px 24px; box-shadow:var(--sh-panel); font-size:clamp(15px,2.4vw,19px); }
+  .fail-card .x { width:30px; height:30px; border-radius:50%; background:var(--bad-soft); color:var(--bad); display:grid; place-items:center; font-weight:700; }
+  .fail-card code { font-family:var(--mono); color:var(--text-2); font-size:.85em; }
+
+  .pills { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .pill2 { background:var(--surface); border:1px solid var(--hairline); border-radius:var(--r-pill); padding:12px 20px; font-size:clamp(14px,2.2vw,17px); font-weight:600; box-shadow:var(--sh-card); }
+  .pill2 b { color:var(--accent); }
+
+  .term { background:#0d1320; border-radius:20px; box-shadow:var(--sh-panel); overflow:hidden; text-align:left; }
+  .term-bar { display:flex; align-items:center; gap:7px; padding:12px 16px; border-bottom:1px solid rgba(255,255,255,.07); }
+  .term-bar .d { width:11px; height:11px; border-radius:50%; }
+  .term-bar .t { margin-left:8px; font-family:var(--mono); font-size:12.5px; color:#7f8da0; }
+  .term-body { font-family:var(--mono); font-size:clamp(12px,1.9vw,14px); color:#c9d6e5; padding:16px 18px; height:190px; overflow:hidden; }
+  .term-body .l { padding:1.5px 0; }
+  .term-body .l.scope { color:#7fb0ff; } .term-body .l.ok { color:#54d19a; } .term-body .l.bad { color:#f0837b; } .term-body .l.warn { color:#e8b062; }
+
+  .bars { display:flex; gap:40px; justify-content:center; align-items:flex-end; margin-top:8px; }
+  .barcol { text-align:center; }
+  .barcol .track { height:150px; display:flex; align-items:flex-end; }
+  .barcol .bar { width:64px; border-radius:8px 8px 0 0; min-height:6px; transition:height 1.2s var(--ease-out-quart); }
+  .barcol .n { font-family:var(--mono); font-size:32px; font-weight:700; margin-top:10px; }
+  .barcol .lab { font-size:13px; color:var(--text-3); text-transform:uppercase; letter-spacing:.05em; }
+
+  .evi { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; max-width:520px; margin:0 auto; }
+  .evi .cell { background:var(--surface); border:1px solid var(--hairline); border-radius:16px; padding:20px; box-shadow:var(--sh-card); }
+  .evi .cell .v { font-family:var(--mono); font-size:30px; font-weight:700; letter-spacing:-.02em; }
+  .evi .cell .k { font-size:12.5px; color:var(--text-2); margin-top:4px; }
+  .evi .cell.accent .v { color:var(--accent); } .evi .cell.good .v { color:var(--good); }
+
+  .cta-row { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:26px; }
+  .replay { position:fixed; bottom:44px; right:24px; z-index:60; }
+  .replay[hidden] { display:none; }
+  @media (prefers-reduced-motion:reduce){ .stage{ transition:none;} .barcol .bar{ transition:none;} }
+</style>
+</head>
+<body>
+  <div class="progress" id="prog"></div>
+  <div class="reel">
+    <div class="stage" id="stage"></div>
+  </div>
+  <div class="subtitle"><span id="sub"></span></div>
+  <button class="btn replay" id="replay" hidden>↺ Replay</button>
+
+<script>
+  const stage = document.getElementById('stage');
+  const sub = document.getElementById('sub');
+  const prog = document.getElementById('prog');
+  const replay = document.getElementById('replay');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const LOGO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="4"/></svg>';
+
+  const SCENES = {
+    title: `<div class="biglogo">${LOGO}</div><div class="wordmark">PatchPilot</div><div class="tagline">Agentic dependency-upgrade autopilot · Built with IBM Bob 2.0</div>`,
+    problem: `<div class="fail-card"><span class="x">✕</span><div><div><b>CI · build failed</b></div><code>express@5 — app.del is not a function · PathError: /profile/:id?</code></div></div>`,
+    solution: `<div class="pills"><div class="pill2">🧠 Full-repo <b>context</b></div><div class="pill2">⚡ Parallel <b>subagents</b></div><div class="pill2">✅ Verified <b>merge-ready</b></div></div>`,
+    run: `<div class="term"><div class="term-bar"><span class="d" style="background:#ff5f57"></span><span class="d" style="background:#febc2e"></span><span class="d" style="background:#28c840"></span><span class="t">patchpilot run · express 4 → 5</span></div><div class="term-body" id="tb"></div></div>`,
+    bars: `<div class="bars"><div class="barcol"><div class="track"><div class="bar" id="bB" style="background:var(--bad)"></div></div><div class="n" style="color:var(--bad)" id="nB">0</div><div class="lab">Before</div></div><div class="barcol"><div class="track"><div class="bar" id="bA" style="background:var(--live)"></div></div><div class="n" style="color:#0a7d47" id="nA">0</div><div class="lab">After</div></div></div>`,
+    bob: `<div class="evi"><div class="cell good"><div class="v">11 / 11</div><div class="k">tests passing</div></div><div class="cell"><div class="v">3 / 3</div><div class="k">Bob tasks (Todo)</div></div><div class="cell accent"><div class="v">1.41</div><div class="k">Bobcoins used</div></div><div class="cell"><div class="v">6</div><div class="k">fixes, 3 modules</div></div></div>`,
+    close: `<div class="biglogo">${LOGO}</div><div class="wordmark" style="font-size:clamp(30px,6vw,52px)">Stop babysitting<br>dependency PRs.</div><div class="cta-row"><a class="btn btn-primary btn-lg" href="/app">Try it live</a><a class="btn btn-lg" href="/">Home</a></div>`,
+  };
+
+  const TERM = [
+    ['[orchestrator] job: express 4 → 5','scope'],
+    ['[verify] BEFORE: 0 tests, build BROKEN','bad'],
+    ['[impact] express: 3 files / 3 modules','scope'],
+    ['[orchestrator] 3 subagents in parallel ⚡','scope'],
+    ['[subagent:api] 4 fixes → 5/5 ✅','ok'],
+    ['[subagent:auth] 3 fixes → 3/3 ✅','ok'],
+    ['[subagent:billing] 2 fixes → 3/3 ✅','ok'],
+    ['[verify] AFTER: 11 tests, build OK ✅','ok'],
+  ];
+
+  // Cue timeline (ms)
+  const cues = [
+    { t:0,     scene:'title',   sub:"Dependency upgrades that don't break your build." },
+    { t:4200,  scene:'problem', sub:'Dependabot bumps the version… and breaks your build.' },
+    { t:9000,  scene:'solution',sub:'PatchPilot fixes the breaking changes — across the whole repo.' },
+    { t:13500, scene:'run',     sub:'Watch it run: express 4 → 5, live.' },
+    { t:14300, term:0 }, { t:15100, term:1, sub:'Naive upgrade — 0 tests, build broken.' },
+    { t:16000, term:2 }, { t:16800, term:3, sub:'Three subagents fix each module in parallel…' },
+    { t:17600, term:4 }, { t:18300, term:5 }, { t:19000, term:6 },
+    { t:20000, term:7, sub:'11 / 11 green. Merge-ready.' },
+    { t:23000, scene:'bars',   sub:'From 0 to 11 — verified by the test suite.' },
+    { t:23600, bars:true },
+    { t:28000, scene:'bob',    sub:'IBM Bob 2.0 did the real migration — for 1.41 Bobcoins.' },
+    { t:33500, scene:'close',  sub:'PatchPilot — built with IBM Bob 2.0.' },
+  ];
+  const TOTAL = 39000;
+
+  let timers = [];
+  function clearAll(){ timers.forEach(clearTimeout); timers = []; }
+
+  function showScene(name){
+    stage.classList.remove('in');
+    setTimeout(() => {
+      stage.innerHTML = SCENES[name];
+      requestAnimationFrame(() => stage.classList.add('in'));
+    }, reduce ? 0 : 220);
+  }
+  function pushTerm(i){
+    const tb = document.getElementById('tb'); if(!tb) return;
+    const [text,cls] = TERM[i];
+    const el = document.createElement('div'); el.className = 'l '+cls; el.textContent = text;
+    tb.appendChild(el);
+  }
+  function growBars(){
+    const bB=document.getElementById('bB'), bA=document.getElementById('bA'), nA=document.getElementById('nA');
+    if(bB) bB.style.height='6px';
+    if(bA){ bA.style.height='150px'; }
+    // count up After 0 → 11
+    let n=0; const iv=setInterval(()=>{ n++; if(nA) nA.textContent=n; if(n>=11) clearInterval(iv); }, reduce?0:90);
+  }
+
+  function play(){
+    clearAll();
+    replay.hidden = true;
+    prog.style.width = '0';
+    const t0 = performance.now();
+    const raf = () => {
+      const p = Math.min(1, (performance.now()-t0)/TOTAL);
+      prog.style.width = (p*100)+'%';
+      if(p<1 && !replay.hidden===false) requestAnimationFrame(raf);
+      else if(p<1) requestAnimationFrame(raf);
+    };
+    requestAnimationFrame(raf);
+
+    for(const c of cues){
+      timers.push(setTimeout(() => {
+        if(c.scene) showScene(c.scene);
+        if(c.sub!=null) sub.textContent = c.sub;
+        if(c.term!=null) pushTerm(c.term);
+        if(c.bars) growBars();
+      }, c.t));
+    }
+    timers.push(setTimeout(() => { replay.hidden = false; }, TOTAL));
+  }
+
+  replay.addEventListener('click', play);
+  play();
+</script>
+</body>
+</html>

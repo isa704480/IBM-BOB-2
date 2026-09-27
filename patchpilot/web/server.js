@@ -15,14 +15,9 @@ const ANSI = /\x1b\[[0-9;]*m/g;
 // Oldindan sozlangan targetlar (config bilan)
 const TARGETS = {
   sample: {
-    label: 'sample-monorepo (express 4 → 5)',
+    label: 'sample-monorepo · express 4 → 5',
     repo: path.join(PP_ROOT, 'fixtures', 'sample-express4'),
     config: path.join(PP_ROOT, 'targets', 'sample-monorepo.config.json'),
-  },
-  sovereign: {
-    label: 'Sovereign — Next.js 16 (zod 3 → 4)',
-    repo: 'D:/My_apps/Sovereign',
-    config: path.join(PP_ROOT, 'targets', 'sovereign.config.json'),
   },
 };
 
@@ -98,6 +93,7 @@ const ROUTES = {
   '/console': 'index.html',
   '/login': 'login.html',
   '/register': 'register.html',
+  '/demo': 'demo.html',
 };
 
 const MIME = {
