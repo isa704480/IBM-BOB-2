@@ -1,0 +1,65 @@
+<svg viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif">
+  <defs>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0071e3"/>
+      <stop offset="1" stop-color="#5e5ce6"/>
+    </linearGradient>
+    <radialGradient id="glowB" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#8ab6ff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#8ab6ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowP" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#b39cff" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#b39cff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="30" stdDeviation="40" flood-color="#0071e3" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <!-- ground -->
+  <rect width="1920" height="1080" fill="#f5f5f7"/>
+  <circle cx="360" cy="240" r="520" fill="url(#glowB)"/>
+  <circle cx="1580" cy="900" r="560" fill="url(#glowP)"/>
+
+  <!-- logo -->
+  <g transform="translate(880 300)">
+    <rect x="0" y="0" width="160" height="160" rx="42" fill="url(#brand)" filter="url(#soft)"/>
+    <g transform="translate(80 80)" stroke="#ffffff" stroke-width="9" stroke-linecap="round" fill="none">
+      <path d="M0 -46 V -22 M0 46 V 22 M-46 0 H -22 M46 0 H 22"/>
+      <circle cx="0" cy="0" r="26"/>
+    </g>
+  </g>
+
+  <!-- wordmark -->
+  <text x="960" y="620" text-anchor="middle" font-size="132" font-weight="700" letter-spacing="-5" fill="#141c27">PatchPilot</text>
+
+  <!-- tagline -->
+  <text x="960" y="694" text-anchor="middle" font-size="40" font-weight="400" fill="#6e6e73">Agentic dependency-upgrade autopilot</text>
+
+  <!-- sub-tagline -->
+  <text x="960" y="762" text-anchor="middle" font-size="30" font-weight="500" fill="#8592a4">Dependency upgrades that don&#8217;t break your build.</text>
+
+  <!-- accent chips -->
+  <g transform="translate(960 838)" font-size="26" font-weight="600" font-family="ui-monospace, 'SF Mono', Menlo, monospace">
+    <!-- express 4 -> 5 -->
+    <g transform="translate(-330 0)">
+      <rect x="0" y="-30" width="220" height="52" rx="26" fill="#ffffff" stroke="#dde3ec"/>
+      <text x="110" y="4" text-anchor="middle" fill="#45566b">express 4 &#8594; 5</text>
+    </g>
+    <!-- 0 -> 11 tests -->
+    <g transform="translate(-90 0)">
+      <rect x="0" y="-30" width="200" height="52" rx="26" fill="#ffffff" stroke="#dde3ec"/>
+      <text x="100" y="4" text-anchor="middle" fill="#45566b">0 &#8594; <tspan fill="#12855a">11</tspan> tests</text>
+    </g>
+    <!-- merge-ready -->
+    <g transform="translate(130 0)">
+      <rect x="0" y="-30" width="230" height="52" rx="26" fill="rgba(18,133,90,0.12)" stroke="rgba(18,133,90,0.3)"/>
+      <circle cx="34" cy="-4" r="6" fill="#30d158"/>
+      <text x="58" y="4" fill="#0a7d47">Merge-ready</text>
+    </g>
+  </g>
+
+  <!-- footer -->
+  <text x="960" y="1004" text-anchor="middle" font-size="26" font-weight="500" letter-spacing="1" fill="#86868b">BUILT WITH IBM BOB 2.0</text>
+</svg>
