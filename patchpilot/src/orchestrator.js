@@ -35,10 +35,10 @@ async function run(cli) {
   const repo = path.resolve(cli.repo);
 
   if (!cfg.dependency || !cfg.from || !cfg.to) {
-    throw new Error('dependency/from/to aniqlanmadi (config yoki --dep --from --to bering)');
+    throw new Error('dependency/from/to not set (use a config or --dep --from --to)');
   }
   if (!cfg.rulesFile || !fs.existsSync(cfg.rulesFile)) {
-    throw new Error(`rules fayli topilmadi: ${cfg.rulesFile}`);
+    throw new Error(`rules file not found: ${cfg.rulesFile}`);
   }
 
   const job = {
@@ -55,8 +55,8 @@ async function run(cli) {
   const rel = (p) => path.relative(process.cwd(), p);
 
   log('orchestrator', `Job ${c.bold}${job.id}${c.reset}: ${cfg.label || cfg.dependency + ' ' + cfg.from + ' → ' + cfg.to}`);
-  log('orchestrator', `strategiya=${cfg.moduleStrategy}, verify=${cfg.verify.mode} (${cfg.verify.cmd})`);
-  log('orchestrator', `repo nusxalanmoqda → ${rel(workdir)}`);
+  log('orchestrator', `strategy=${cfg.moduleStrategy}, verify=${cfg.verify.mode} (${cfg.verify.cmd})`);
+  log('orchestrator', `copying repo → ${rel(workdir)}`);
   copyRepo(repo, workdir);
 
   // Ikki oqim: (a) real upgrade+install, (b) codemod-only + junction
@@ -64,12 +64,12 @@ async function run(cli) {
     log('orchestrator', `naive upgrade: ${cfg.dependency} → ^${cfg.to} + npm install ...`);
     bumpDependency(workdir, cfg.dependency, cfg.to);
     if (cfg.upgrade.install && spawnSync('npm install', { cwd: workdir, shell: true }).status !== 0) {
-      throw new Error('npm install muvaffaqiyatsiz');
+      throw new Error('npm install failed');
     }
   } else if (cfg.linkDirs.length) {
     for (const d of cfg.linkDirs) {
       const okLink = linkDir(repo, workdir, d);
-      log('orchestrator', `${d} ${okLink ? 'junction qilindi (originaldan)' : 'topilmadi, o\'tkazib yuborildi'}`);
+      log('orchestrator', `${d} ${okLink ? 'linked from original' : 'not found, skipped'}`);
     }
   }
 
@@ -82,7 +82,7 @@ async function run(cli) {
   // Migration knowledge (fixture / Bob)
   const rulesData = extractRules(cfg.rulesFile);
   const ruleById = Object.fromEntries(rulesData.rules.map((r) => [r.id, r]));
-  log('extractor', `${rulesData.rules.length} ta migration rule yuklandi`);
+  log('extractor', `${rulesData.rules.length} migration rule(s) loaded`);
 
   // Impact map (full-repo)
   const impact = mapImpact(workdir, rulesData.rules, {
@@ -91,14 +91,14 @@ async function run(cli) {
     dependency: cfg.dependency,
   });
   const du = impact.depUsage;
-  log('impact', `${cfg.dependency}: ${du.files} fayl / ${du.modules} modul / ${du.importSites} import`);
-  log('impact', `breaking joylar: ${impact.modules.length} modul, ${impact.totalFiles} fayl, ${impact.totalCallSites} call-site`);
+  log('impact', `${cfg.dependency}: ${du.files} files / ${du.modules} modules / ${du.importSites} imports`);
+  log('impact', `breaking sites: ${impact.modules.length} modules, ${impact.totalFiles} files, ${impact.totalCallSites} call-sites`);
 
   // Plan + parallel subagents
   const tasks = planTasks(impact);
   const verifyCmd = cfg.verify.mode === 'per-module' ? cfg.verify.cmd : null;
-  if (tasks.length) log('orchestrator', `${tasks.length} ta subagent parallel ishga tushdi ⚡`);
-  else log('orchestrator', 'breaking joy topilmadi — subagent kerak emas');
+  if (tasks.length) log('orchestrator', `spawning ${tasks.length} subagents in parallel ⚡`);
+  else log('orchestrator', 'no breaking sites — no subagents needed');
   const results = await Promise.all(tasks.map((t) => remediate(workdir, t, ruleById, verifyCmd)));
 
   // AFTER verify
@@ -116,7 +116,7 @@ async function run(cli) {
 
 function verifyLabel(v) {
   if (v.mode === 'repo') return `${v.perModule[0].module} build ${v.ok ? 'OK' : 'BROKEN'}`;
-  return `${v.pass} test o'tyapti, build ${v.ok ? 'OK' : 'BROKEN'}`;
+  return `${v.pass} tests passing, build ${v.ok ? 'OK' : 'BROKEN'}`;
 }
 
 function printSummary(r, workdir, artDir, rel) {
@@ -132,7 +132,7 @@ function printSummary(r, workdir, artDir, rel) {
   line('Verify BEFORE', r.verifyBefore.ok ? 'OK' : `${c.red}BROKEN${c.reset}`);
   line('Verify AFTER', r.verifyAfter.ok ? `${c.green}OK${c.reset}` : `${c.red}BROKEN${c.reset}`);
   line('Merge-ready', r.mergeReady ? `${c.green}YES ✅${c.reset}` : `${c.red}NO ❌${c.reset}`);
-  line('Duration', `${r.durationSeconds}s  (qo'lda ~${r.manualEstimateMinutes}m → ~${r.timeSavedPercent}% tejaldi)`);
+  line('Duration', `${r.durationSeconds}s  (manual ~${r.manualEstimateMinutes}m → ~${r.timeSavedPercent}% saved)`);
   console.log(`${c.bold}═══════════════════════════════════════════${c.reset}`);
   console.log(`  ${c.dim}Artifacts :${c.reset} ${rel(artDir)}`);
   console.log(`  ${c.dim}Work repo :${c.reset} ${rel(workdir)}`);

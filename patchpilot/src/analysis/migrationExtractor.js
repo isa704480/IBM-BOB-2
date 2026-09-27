@@ -8,7 +8,7 @@ const fs = require('fs');
 // oldindan tayyorlangan JSON fixture'dan o'qiydi — pipeline Bob'siz ham ishlaydi.
 function extractRules(rulesFile) {
   if (!rulesFile || !fs.existsSync(rulesFile)) {
-    throw new Error(`Migration rules fixture topilmadi: ${rulesFile}`);
+    throw new Error(`Migration rules fixture not found: ${rulesFile}`);
   }
   return JSON.parse(fs.readFileSync(rulesFile, 'utf8'));
 }

@@ -81,8 +81,8 @@
       <div class="nav-links">
         <a href="/">Home</a>
         <a href="/demo" class="hide-sm">Demo</a>
-        <a href="/console" aria-current="page">Console</a>
-        <a href="/login">Sign in</a>
+        <a href="/console" aria-current="page">Dashboard</a>
+        <a href="/login" id="authLink">Sign in</a>
       </div>
     </div>
   </nav>
@@ -136,6 +136,23 @@
 
     const nav = $('nav');
     addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 8), { passive: true });
+
+    // Signed-in state (demo auth via localStorage)
+    (function () {
+      let user = null;
+      try { user = localStorage.getItem('pp_user'); } catch (e) {}
+      const a = $('authLink');
+      if (user && a) {
+        a.textContent = 'Sign out';
+        a.href = '#';
+        a.addEventListener('click', (e) => {
+          e.preventDefault();
+          try { localStorage.removeItem('pp_user'); } catch (er) {}
+          window.location.href = '/';
+        });
+        $('status').textContent = 'Signed in as ' + user + ' — press Run';
+      }
+    })();
 
     fetch('/api/targets').then((r) => r.json()).then((list) => {
       if (list[0]) { current = list[0].key; $('targetLabel').textContent = list[0].label; }

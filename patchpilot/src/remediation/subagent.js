@@ -60,12 +60,12 @@ async function remediate(repo, task, ruleById, verifyCmd) {
   else status = 'clean';
 
   const summary =
-    `${totalFixes} fix` +
-    (flaggedCount ? `, ${flaggedCount} Bob'ga flag` : '') +
-    (test ? ` -> testlar ${test.pass}/${test.pass + test.fail}` : '');
+    `${totalFixes} fix(es)` +
+    (flaggedCount ? `, ${flaggedCount} flagged for Bob` : '') +
+    (test ? ` -> tests ${test.pass}/${test.pass + test.fail}` : '');
   if (status === 'needs_human') warn(label, `${summary} ⚠️ needs_human`);
-  else if (status === 'needs_bob') warn(label, `${summary} 🔶 needs_bob (semantik)`);
-  else if (status === 'clean') log(label, `o'zgarishsiz (toza)`);
+  else if (status === 'needs_bob') warn(label, `${summary} 🔶 needs_bob (semantic)`);
+  else if (status === 'clean') log(label, `no changes (clean)`);
   else ok(label, `${summary} ✅`);
 
   return {
@@ -76,7 +76,7 @@ async function remediate(repo, task, ruleById, verifyCmd) {
     flaggedForBob,
     testStatus: test ? (test.ok ? 'passed' : 'failed') : 'deferred',
     pass: test ? test.pass : null,
-    humanReason: status === 'needs_human' ? 'Avtomatik fix testlarni yashil qilmadi' : null,
+    humanReason: status === 'needs_human' ? 'Automated fix did not turn tests green' : null,
   };
 }
 

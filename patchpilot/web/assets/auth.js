@@ -50,6 +50,7 @@
     const btn = form.querySelector('button[type="submit"]');
     btn.disabled = true;
     btn.textContent = 'One moment…';
+    try { localStorage.setItem('pp_user', val('email') || 'user'); } catch (e) {}
     setTimeout(() => { window.location.href = '/app'; }, 500);
   });
 })();

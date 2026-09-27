@@ -39,7 +39,7 @@ function runTarget(key, res) {
   const send = (event, data) => res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
 
   if (!target) {
-    send('error', { message: `noma'lum target: ${key}` });
+    send('error', { message: `unknown target: ${key}` });
     return res.end();
   }
 
@@ -72,7 +72,7 @@ function runTarget(key, res) {
     const report = dir && readJson(path.join(dir, 'report.json'));
     const results = dir && readJson(path.join(dir, 'patch-results.json'));
     if (report) send('done', { report, results });
-    else send('error', { message: 'report topilmadi' });
+    else send('error', { message: 'report not found' });
     res.end();
   });
 
